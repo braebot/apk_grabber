@@ -8,3 +8,6 @@ Syntax:
 `apk_grabber.py paypal`: grabs all apks that match *paypal* in the _package name_.
 
 `apk_grabber.py ''`: grabs all apks on the device.
+
+
+## [License](LICENSE.md)
