@@ -1,0 +1,7 @@
+cache/
+
+# Misc
+.DS_Store
+
+*.pyc
+venv/
