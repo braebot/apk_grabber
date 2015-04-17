@@ -12,9 +12,6 @@ import sys
 import urllib
 import zipfile
 
-
-OUTPUT_BASE_DIR = "cache"
-
 def execute(cmd):
     print "running shell command:\n    " + cmd
     try:
@@ -32,6 +29,8 @@ def main(argv=None):
         description="apk grabber!", parents=())
     parser.add_argument('patterns', metavar='pattern', type=str, nargs='+',
                    help='pattern(s) to match package names on the device')
+    parser.add_argument('--output_dir', dest='output', action='store', default='output',
+        help="output directory of the apk and jar files")
     args = parser.parse_args()
 
     print args.patterns
@@ -43,7 +42,7 @@ def main(argv=None):
     
     matching_packages = []
 
-    print "now matching packages to {args.patterns}".format(**locals())
+    print "matching packages to {args.patterns}".format(**locals())
 
     # for each pattern, grep the name and store in a big list
     for pattern in args.patterns:
@@ -57,12 +56,12 @@ def main(argv=None):
     for matching_package in matching_packages:
         # find path to apk
         apk_path = execute("adb shell pm path {matching_package}".format(**locals())).split(':')[1]
-        output_apk_path = os.path.join(OUTPUT_BASE_DIR, matching_package) + ".apk"
+        output_apk_path = os.path.join(args.output, matching_package) + ".apk"
 
         # pull apk off device
         execute("adb pull {apk_path} {output_apk_path}".format(**locals()))
 
-        output_jar_path = os.path.join(OUTPUT_BASE_DIR, matching_package) + ".jar"
+        output_jar_path = os.path.join(args.output, matching_package) + ".jar"
         # decompile apk into jar file
         execute("dex2jar-2.0/d2j-dex2jar.sh -f -o {output_jar_path} {output_apk_path}".format(**locals()))
 
