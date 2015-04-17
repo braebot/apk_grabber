@@ -9,6 +9,8 @@ import os
 import re
 import subprocess
 import sys
+import urllib
+import zipfile
 
 
 OUTPUT_BASE_DIR = "cache"
@@ -49,20 +51,20 @@ def main(argv=None):
             if re.search(pattern, line):
                 matching_packages.append(line.split(':')[1])
 
-    print "found the following packages on the device:"
-    print matching_packages
+    print "matched these packages on the device:" + str(matching_packages)
 
 
     for matching_package in matching_packages:
+        # find path to apk
         apk_path = execute("adb shell pm path {matching_package}".format(**locals())).split(':')[1]
         output_apk_path = os.path.join(OUTPUT_BASE_DIR, matching_package) + ".apk"
+
+        # pull apk off device
         execute("adb pull {apk_path} {output_apk_path}".format(**locals()))
 
-
-    # download dex2jar
-
-
-    # decompile dexes
+        output_jar_path = os.path.join(OUTPUT_BASE_DIR, matching_package) + ".jar"
+        # decompile apk into jar file
+        execute("dex2jar-2.0/d2j-dex2jar.sh -f -o {output_jar_path} {output_apk_path}".format(**locals()))
 
 
 if __name__ == '__main__':
