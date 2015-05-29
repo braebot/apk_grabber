@@ -56,12 +56,18 @@ def main(argv=None):
     for matching_package in matching_packages:
         # find path to apk
         apk_path = execute("adb shell pm path {matching_package}".format(**locals())).split(':')[1]
-        output_apk_path = os.path.join(args.output, matching_package) + ".apk"
+        apk_base_file_name = os.path.join(args.output, matching_package)
+        output_apk_path = apk_base_file_name + ".apk"
 
         # pull apk off device
         execute("adb pull {apk_path} {output_apk_path}".format(**locals()))
 
-        output_jar_path = os.path.join(args.output, matching_package) + ".jar"
+        # unzip apk contents (gets everything but dex)
+        execute("rm -rf {apk_base_file_name}".format(**locals()))
+        execute("mkdir {apk_base_file_name}".format(**locals()))
+        execute("unzip -x {output_apk_path} -d {apk_base_file_name}".format(**locals()))
+
+        output_jar_path = os.path.join(apk_base_file_name, "classes") + ".jar"
         # decompile apk into jar file
         execute("dex2jar-2.0/d2j-dex2jar.sh -f -o {output_jar_path} {output_apk_path}".format(**locals()))
 
