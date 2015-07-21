@@ -67,9 +67,11 @@ def main(argv=None):
         execute("mkdir {apk_base_file_name}".format(**locals()))
         execute("unzip -x {output_apk_path} -d {apk_base_file_name}".format(**locals()))
 
-        output_jar_path = os.path.join(apk_base_file_name, "classes") + ".jar"
-        # decompile apk into jar file
-        execute("dex2jar-2.0/d2j-dex2jar.sh -f -o {output_jar_path} {output_apk_path}".format(**locals()))
+        classes_files = execute("ls {apk_base_file_name}/classes*.dex".format(**locals())).split()
+
+        for dex_class_file in classes_files:
+            # decompile apk into jar file(s)
+            execute("dex2jar-2.0/d2j-dex2jar.sh -f -o {dex_class_file}.jar {dex_class_file}".format(**locals()))
 
 
 if __name__ == '__main__':
